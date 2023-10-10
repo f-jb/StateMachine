@@ -4,12 +4,14 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
-public class Time implements TimeInterface{
+public class Time implements TimeInterface {
     private final Duration offsetTime;
-    public Time(){
+
+    public Time() {
         this.offsetTime = Duration.ZERO;
     }
-    public Time(LocalTime localTime){
+
+    public Time(LocalTime localTime) {
         this.offsetTime = Duration.between(LocalTime.now(), localTime);
     }
 

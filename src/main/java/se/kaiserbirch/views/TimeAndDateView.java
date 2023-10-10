@@ -1,67 +1,73 @@
 package se.kaiserbirch.views;
 
-import se.kaiserbirch.controller.Controller;
-import se.kaiserbirch.controller.UiState;
-
 import javax.swing.*;
-import java.awt.*;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Flow;
+import java.awt.event.ActionListener;
 
-public class TimeAndDateView implements Flow.Subscriber<UiState> {
+class TimeAndDateView extends JPanel {
+    private final JLabel timeOrDate = new JLabel();
+    private final JLabel currentState = new JLabel();
+    private final JButton changeModeButton;
+    private final JButton readyToSetButton;
+    private final JTextField textPrompt = new JTextField();
 
-    public static JPanel timeAndDatePanel(Controller controller, UiState uiState)
-
-    {
-        JPanel jPanel = new JPanel();
-        JButton changeModeButton = new JButton();
-        changeModeButton.setText("Change Mode");
-        changeModeButton.addActionListener(e -> controller.changeMode());
-        JButton readyToSetButton = new JButton();
-        readyToSetButton.setText("Ready to Set");
-        readyToSetButton.addActionListener(e -> controller.readyToSet());
-        JLabel timeOrDate = new JLabel(uiState.getTime().toString());
-        jPanel.add(timeOrDate);
-        jPanel.add(changeModeButton);
-        jPanel.add(readyToSetButton);
-
-        TimerTask refresh = new TimerTask() {
-            @Override
-            public void run() {
-                switch (uiState.getCurrentState()){
-                    case S1 -> timeOrDate.setText(uiState.getTime().toString());
-                    case S2 -> timeOrDate.setText(uiState.getDate().toString());
-                }
-
-            }
-        };
-
-        java.util.Timer timer = new Timer("refresh");
-        timer.scheduleAtFixedRate(refresh,0,1000);
-
-        return jPanel;
+    private TimeAndDateView(Builder builder) {
+        this.changeModeButton = builder.changeModeButton;
+        this.readyToSetButton = builder.readyToSetButton;
+        this.add(currentState);
+        this.add(timeOrDate);
+        this.add(changeModeButton);
+        this.add(readyToSetButton);
     }
 
-    @Override
-    public void onSubscribe(Flow.Subscription subscription) {
+    protected static class Builder {
+        private final JButton changeModeButton = new JButton("Change Mode");
+        private final JButton readyToSetButton = new JButton("Ready to Set");
 
+        protected Builder setChangeModeFunction(ActionListener changeModeFunction) {
+            this.changeModeButton.addActionListener(changeModeFunction);
+            return this;
+        }
 
+        protected Builder setReadyToSetFunction(ActionListener readyToSetFunction) {
+            this.readyToSetButton.addActionListener(readyToSetFunction);
+            return this;
+        }
+
+        TimeAndDateView build() {
+            return new TimeAndDateView(this);
+        }
     }
 
-    @Override
-    public void onNext(UiState item) {
-
+    protected void setTextToDisplay(String timeOrDate) {
+        this.timeOrDate.setText(timeOrDate);
     }
 
-
-    @Override
-    public void onError(Throwable throwable) {
-
+    protected void setCurrentState(String currentState) {
+        this.currentState.setText(currentState);
     }
 
-    @Override
-    public void onComplete() {
+    protected void disableChangeModeButton() {
+        this.changeModeButton.setEnabled(false);
+    }
 
+    protected void enableChangeModeButton() {
+        this.changeModeButton.setEnabled(true);
+    }
+
+    protected void setReadyToSetButtonText(String readyToSetButtonText) {
+        readyToSetButton.setText(readyToSetButtonText);
+    }
+
+    protected void addTextPrompt(String textPromptText) {
+        this.add(textPrompt);
+        textPrompt.setText(textPromptText);
+    }
+
+    protected void removeTextPrompt() {
+        this.remove(textPrompt);
+    }
+
+    protected String getText() {
+        return textPrompt.getText();
     }
 }
